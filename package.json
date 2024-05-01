@@ -1,6 +1,6 @@
 {
   "name": "native-dropdown-widget",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "An npm package with fully customizable options",
   "main": "index.tsx",
   "scripts": {
@@ -11,6 +11,9 @@
     "url": "git+https://github.com/knoumann/custom-dropdown.git"
   },
   "author": "Nouman khan",
+  "keywords": [
+    "npm"
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/knoumann/custom-dropdown/issues"

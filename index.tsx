@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import {
+  Dimensions,
+  FlatList,
   Image,
   ImageStyle,
+  LayoutChangeEvent,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   TextStyle,
@@ -15,13 +17,13 @@ import {
 interface Item {
   name?: string;
   title?: string;
+  value?: string;
 }
 
 interface DropDownComponentProps {
   data: Item[];
   placeholder: string;
   dropIconUri: string;
-  scrollEnabled: boolean;
   dropDownIcon?: React.ReactNode;
   cardIcon?: React.ReactNode;
   cardIconUri?: string;
@@ -44,7 +46,6 @@ interface DropDownComponentProps {
   placeholderStyle?: TextStyle;
   iconStyle?: ImageStyle;
   innerContainerStyle?: ViewStyle;
-  innerContentContainerStyle?: ViewStyle;
   listStyle?: ViewStyle;
   listTextStyle?: TextStyle;
   cardContainerStyle?: ViewStyle;
@@ -52,6 +53,11 @@ interface DropDownComponentProps {
   cardTextStyle?: TextStyle;
   cardIconView?: ViewStyle;
   cardIconStyle?: ImageStyle;
+  isInverted?: boolean;
+  isOverLay?: boolean;
+  singleSelection?: boolean;
+  selectedItem: any[];
+  setSelectedItem: (items: any[]) => void;
 }
 
 const DropDownComponent: React.FC<DropDownComponentProps> = ({
@@ -60,7 +66,6 @@ const DropDownComponent: React.FC<DropDownComponentProps> = ({
   containerStyle,
   iconStyle,
   innerContainerStyle,
-  innerContentContainerStyle,
   listStyle,
   listTextStyle,
   placeholder,
@@ -68,7 +73,6 @@ const DropDownComponent: React.FC<DropDownComponentProps> = ({
   dropIconUri,
   dropIconResizeMode,
   dropDownIcon,
-  scrollEnabled,
   cardContainerStyle,
   cardStyle,
   cardTextStyle,
@@ -77,26 +81,37 @@ const DropDownComponent: React.FC<DropDownComponentProps> = ({
   cardIconResizeMode,
   cardIconView,
   cardIconStyle,
+  isInverted,
+  isOverLay = true,
+  singleSelection,
+  selectedItem,
+  setSelectedItem,
 }) => {
   const [items, setItems] = useState<Item[]>([]);
-  const [selectedItem, setSelectedItem] = useState<Item | null>(null);
-  const [showOptions, setShowOptions] = useState<boolean>(false);
+  const [showOptions2, setShowOptions2] = useState<boolean>(false);
   const [rotationAngle, setRotationAngle] = useState(0);
+  const [showOptions, setShowOptions] = useState<boolean>(false);
 
   const handleToggleOptions = () => {
-    !dropDownIcon && !dropIconUri && setRotationAngle(rotationAngle + 180); // Rotate by 90 degrees on each click
+    setRotationAngle(rotationAngle + 180); // Rotate by 90 degrees on each click
     setShowOptions(!showOptions);
   };
 
-  const handleOptionSelect = (item: Item) => {
-    setSelectedItem(item);
-    if (
-      !items.find((existingItem) => existingItem?.name === item?.name) ||
-      !items.find((existingItem) => existingItem?.title === item?.title)
-    ) {
-      setItems([...items, item]);
+  const handleOptionSelect = (item: Item | any) => {
+    if (singleSelection) {
+      setItems(item);
+      setSelectedItem(item);
+    } else {
+      setSelectedItem(item);
+      if (
+        !items.find((existingItem) => existingItem?.name === item?.name) ||
+        !items.find((existingItem) => existingItem?.title === item?.title)
+      ) {
+        setItems([...items, item]);
+      }
     }
     setShowOptions(false);
+    setShowOptions2(false);
   };
 
   const handleRemoveItem = (index: number) => {
@@ -105,91 +120,124 @@ const DropDownComponent: React.FC<DropDownComponentProps> = ({
     setItems(updatedItems);
   };
 
-  return (
-    <View style={[styles.container, style]}>
-      <Pressable
-        onPress={handleToggleOptions}
-        style={[styles.containerStyle, containerStyle]}
+  const onLayout = (e: LayoutChangeEvent) => {
+    const { y } = e.nativeEvent.layout || {};
+    const windowHeight = Dimensions.get("window").height;
+    const halfWindowHeight = windowHeight / 2;
+    const oneThirdWindowHeight = halfWindowHeight / 2;
+
+    if (y > halfWindowHeight) {
+      setShowOptions2(true);
+    }
+    if (y < halfWindowHeight && y < oneThirdWindowHeight) {
+      setShowOptions2(false);
+    }
+  };
+
+  const renderListFn = (isOverLay?: boolean | undefined) => {
+    return (
+      <View
+        style={[
+          styles.innerContainerStyle,
+          innerContainerStyle,
+          isOverLay && styles.overlay,
+        ]}
       >
-        <Text style={[styles.placeholderStyle, placeholderStyle]}>
-          {selectedItem
-            ? selectedItem.name ?? selectedItem.title
-            : placeholder ?? "placeholder text here.."}
-        </Text>
-
-        {dropDownIcon ?? (
-          <Image
-            source={
-              dropIconUri
-                ? { uri: dropIconUri }
-                : require("./assets/images/icon-down.png")
-            }
-            resizeMode={dropIconResizeMode ?? "contain"}
-            style={[
-              styles.iconStyle,
-              iconStyle,
-              { transform: [{ rotate: `${rotationAngle}deg` }] },
-            ]}
-          />
-        )}
-      </Pressable>
-
-      {showOptions && (
-        <ScrollView
-          scrollEnabled={scrollEnabled ?? true}
-          style={[styles.innerContainerStyle, innerContainerStyle]}
-          contentContainerStyle={innerContentContainerStyle}
-        >
-          {data &&
-            data?.map((item) => {
-              return (
-                <TouchableOpacity
-                  onPress={() => handleOptionSelect(item)}
-                  style={[styles.listStyle, listStyle]}
-                  key={Math.random() * 2}
-                >
-                  <Text style={[styles.listTextStyle, listTextStyle]}>
-                    {item?.name ? item?.name : item?.title}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-        </ScrollView>
-      )}
-
-      <View style={[styles.cardContainerStyle, cardContainerStyle]}>
-        {items?.map((item, index) => {
-          return (
-            <View key={index} style={[styles.cardStyle, cardStyle]}>
-              <Text style={[styles.cardTextStyle, cardTextStyle]}>
+        <FlatList
+          data={data}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              onPress={() => handleOptionSelect(item)}
+              style={[styles.listStyle, listStyle]}
+              key={Math.random() * 2}
+            >
+              <Text style={[styles.listTextStyle, listTextStyle]}>
                 {item?.name ? item?.name : item?.title}
               </Text>
-              <TouchableOpacity
-                onPress={() => handleRemoveItem(index)}
-                style={[styles.cardIconView, cardIconView]}
-              >
-                {cardIcon ?? (
-                  <Image
-                    source={
-                      cardIconUri
-                        ? { uri: cardIconUri }
-                        : require("./assets/images/icon-cross.png")
-                    }
-                    resizeMode={cardIconResizeMode ?? "contain"}
-                    style={[styles.cardIconStyle, cardIconStyle]}
-                  />
-                )}
-              </TouchableOpacity>
-            </View>
-          );
-        })}
+            </TouchableOpacity>
+          )}
+          inverted={isInverted}
+        />
       </View>
+    );
+  };
+
+  return (
+    <View style={[styles.container, style]} onLayout={onLayout}>
+      {showOptions && showOptions2 && renderListFn((isOverLay = false))}
+      <>
+        <Pressable
+          onPress={handleToggleOptions}
+          style={[styles.containerStyle, containerStyle]}
+        >
+          <Text style={[styles.placeholderStyle, placeholderStyle]}>
+            {selectedItem
+              ? selectedItem.name ?? selectedItem.title
+              : placeholder ?? "placeholder text here.."}
+          </Text>
+
+          {dropDownIcon ?? (
+            <Image
+              source={
+                dropIconUri
+                  ? { uri: dropIconUri }
+                  : require("./assets/images/icon-down.png")
+              }
+              resizeMode={dropIconResizeMode ?? "contain"}
+              style={[
+                styles.iconStyle,
+                iconStyle,
+                { transform: [{ rotate: `${rotationAngle}deg` }] },
+              ]}
+            />
+          )}
+        </Pressable>
+      </>
+
+      {showOptions && !showOptions2 && renderListFn(isOverLay)}
+
+      {singleSelection ? (
+        <></>
+      ) : (
+        <View style={[styles.cardContainerStyle, cardContainerStyle]}>
+          {items?.map((item, index) => {
+            return (
+              <View key={index} style={[styles.cardStyle, cardStyle]}>
+                <Text style={[styles.cardTextStyle, cardTextStyle]}>
+                  {item?.name ? item?.name : item?.title}
+                </Text>
+                <TouchableOpacity
+                  onPress={() => handleRemoveItem(index)}
+                  style={[styles.cardIconView, cardIconView]}
+                >
+                  {cardIcon ?? (
+                    <Image
+                      source={
+                        cardIconUri
+                          ? { uri: cardIconUri }
+                          : require("./assets/images/icon-cross.png")
+                      }
+                      resizeMode={cardIconResizeMode ?? "contain"}
+                      style={[styles.cardIconStyle, cardIconStyle]}
+                    />
+                  )}
+                </TouchableOpacity>
+              </View>
+            );
+          })}
+        </View>
+      )}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { paddingHorizontal: 10 },
+  container: {
+    paddingHorizontal: 10,
+    paddingBottom: 10,
+    position: "relative",
+    zIndex: 1,
+  },
   containerStyle: {
     borderWidth: 0.5,
     padding: 8,
@@ -198,14 +246,24 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: 8,
     borderColor: "grey",
+    paddingHorizontal: 10,
   },
   innerContainerStyle: {
     borderWidth: 0.5,
     zIndex: 1,
     borderRadius: 8,
     overflow: "hidden",
-    marginTop: 4,
+    marginVertical: 4,
     borderColor: "grey",
+    backgroundColor: "white",
+    maxHeight: 250,
+  },
+  overlay: {
+    top: "100%",
+    position: "absolute",
+    left: 0,
+    right: 0,
+    marginHorizontal: 10,
   },
   listStyle: {
     paddingHorizontal: 8,
