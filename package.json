@@ -1,6 +1,6 @@
 {
   "name": "native-dropdown-widget",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "An npm package with fully customizable options",
   "main": "index.tsx",
   "scripts": {
@@ -14,6 +14,10 @@
   "keywords": [
     "npm"
   ],
+  "peerDependencies": {
+    "react": "*",
+    "react-native": "*"
+  },
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/knoumann/custom-dropdown/issues"
