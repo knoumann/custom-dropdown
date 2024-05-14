@@ -12,7 +12,15 @@
   },
   "author": "Nouman khan",
   "keywords": [
-    "npm"
+    "npm",
+    "react-native",
+    "components",
+    "dropdown",
+    "menu",
+    "single select",
+    "picker",
+    "select",
+    "select item"
   ],
   "peerDependencies": {
     "react": "*",

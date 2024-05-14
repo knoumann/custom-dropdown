@@ -6,6 +6,10 @@ React Native Dropown Widget is a library which have the capability to provides a
 
 [<img src="https://github.com/knoumann/custom-dropdown/blob/main/assets/images/sample-2.jpg">]
 
+## Badges
+
+[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
+
 ## Features
 
 - Easy to use
@@ -37,90 +41,95 @@ and voilà!!
 | Props                      | Params                 | isRequire | Description                                                                |
 | -------------------------- | ---------------------- | --------- | -------------------------------------------------------------------------- |
 | data                       | Array                  | Yes       | Plain array containing dropdown options.                                   |
+| selectedItem               | any[]                  | Yes       | Array containing selected items.                                           |
+| setSelectedItem            | (items: any[]) => void | Yes       | Function to set selected items.                                            |
 | style                      | Object                 | No        | Style object for the dropdown component.                                   |
 | containerStyle             | Object                 | No        | Style object for the dropdown container.                                   |
-| iconStyle                  | Object                 | No        | Style object for the dropdown icon.                                        |
 | innerContainerStyle        | Object                 | No        | Style object for the inner container of the dropdown.                      |
 | innerContentContainerStyle | Object                 | No        | Style object for the inner content container.                              |
 | listStyle                  | Object                 | No        | Style object for the dropdown list.                                        |
 | listTextStyle              | Object                 | No        | Style object for the text within the dropdown list.                        |
 | placeholder                | String                 | No        | Placeholder text when no option is selected.                               |
 | placeholderStyle           | Object                 | No        | Style object for the placeholder text.                                     |
-| dropIconUri                | String                 | No        | URI for the dropdown icon.                                                 |
-| dropIconResizeMode         | String                 | No        | Resize mode for the dropdown icon.                                         |
+| leftIcon                   | string                 | No        | Icon to be displayed on the left side.                                     |
+| leftIconStyle              | object                 | No        | Style object for the left icon.                                            |
 | dropDownIcon               | Component              | No        | Custom component to be used as the dropdown icon.                          |
 | scrollEnabled              | Boolean                | No        | Enable/disable scrolling in the dropdown list.                             |
 | cardContainerStyle         | Object                 | No        | Style object for the card container (if used).                             |
 | cardStyle                  | Object                 | No        | Style object for the card component (if used).                             |
 | cardTextStyle              | Object                 | No        | Style object for the text within the card (if used).                       |
 | cardIcon                   | Component              | No        | Custom component to be used as the card icon (if used).                    |
-| cardIconUri                | String                 | No        | URI for the card icon (if used).                                           |
-| cardIconResizeMode         | String                 | No        | Resize mode for the card icon (if used).                                   |
 | cardIconView               | Component              | No        | Custom component to wrap the card icon (if used).                          |
-| cardIconStyle              | Object                 | No        | Style object for the card icon (if used).                                  |
 | isInverted                 | boolean                | No        | Boolean indicating if the table is inverted.                               |
 | isOverLay                  | boolean                | No        | Boolean indicating if the table is overlayed or overlap on behind content. |
 | singleSelection            | boolean                | No        | Boolean indicating single selection mode or want only one selection.       |
-| selectedItem               | any[]                  | Yes       | Array containing selected items.                                           |
-| setSelectedItem            | (items: any[]) => void | Yes       | Function to set selected items.                                            |
 
 ## Examples Array - 1
 
 ```javascript
 const ExpArray = () => [
-  { title: "vvlgray", value: 1 },
-  { title: "vlgray", value: 2 },
-  { title: "lgray", value: 3 },
-  { title: "gray", value: 4 },
-  { title: "sgray", value: 5 },
-  { title: "vsgray", value: 6 },
+  "vvlgray",
+  "vlgray",
+  "lgray",
+  "gray",
+  "sgray",
+  "vsgray",
 ];
 ```
 
-## Examples Array - 1
+## Call the library directly or Import by copying this below -
 
-```javascript
-[
-  { name: "vvlgray", value: 1 },
-  { name: "vlgray", value: 2 },
-  { name: "lgray", value: 3 },
-  { name: "gray", value: 4 },
-  { name: "sgray", value: 5 },
-  { name: "vsgray", value: 6 },
-];
-```
-
-## Note
-
-Make sure the structure of array are as mentioned in the example.
-
-- keys name should be consist of 'title' or 'name'
-- have the secondary keys as 'value'
-
-## Usage/Examples
-
-```javascript
+```bash
 import DropDownComponent from "native-dropdown-widget";
+```
 
+## Usage/Examples 1 - Basic
+
+```javascript
 const [selectedItem, setSelectedItem] = useState(null);
 
 function App() {
   return (
     <DropDownComponent
       data={ExpArray()}
-      placeholder={"grey"}
+      placeholder={"gray"}
       scrollEnabled={true}
       isOverLay={false}
       selectedItem={selectedItem}
       setSelectedItem={setSelectedItem}
-      dropDownIcon={
-        <Image
-          source={{ uri: "https://reactnative.dev/img/tiny_logo.png" }}
-          resizeMode="contain"
-          style={{ height: 10, width: 10 }}
-        />
-      }
+      dropDownIcon={<></>}
     />
   );
 }
 ```
+
+## Usage/Examples 2 - Inverted list With Icons
+
+#### (Note - You can use any JSX.Element)
+
+```javascript
+const [selectedItem, setSelectedItem] = useState(null);
+
+function App() {
+  return (
+    <DropDownComponent
+      data={ExpArray()}
+      placeholder={"gray"}
+      scrollEnabled={true}
+      isOverLay={false}
+      selectedItem={selectedItem}
+      setSelectedItem={setSelectedItem}
+      leftIcon={<Text>{"❄"}</Text>}
+      isInverted
+    />
+  );
+}
+```
+
+## Author
+
+- [Nouman khan](https://github.com/knoumann)
+
+## License
+
+[MIT](https://choosealicense.com/licenses/mit/)

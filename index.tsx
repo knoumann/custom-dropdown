@@ -1,10 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, ReactNode } from "react";
 import {
   Dimensions,
   FlatList,
-  Image,
-  ImageStyle,
   LayoutChangeEvent,
+  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -14,37 +13,16 @@ import {
   ViewStyle,
 } from "react-native";
 
-interface Item {
-  name?: string;
-  title?: string;
-  value?: string;
-}
-
 interface DropDownComponentProps {
-  data: Item[];
+  data: string[];
   placeholder: string;
-  dropIconUri: string;
-  dropDownIcon?: React.ReactNode;
-  cardIcon?: React.ReactNode;
-  cardIconUri?: string;
-  cardIconResizeMode?:
-    | "cover"
-    | "contain"
-    | "stretch"
-    | "repeat"
-    | "center"
-    | undefined;
-  dropIconResizeMode?:
-    | "cover"
-    | "contain"
-    | "stretch"
-    | "repeat"
-    | "center"
-    | undefined;
+  dropDownIcon?: ReactNode;
+  leftIcon?: ReactNode;
+  cardIcon?: ReactNode;
   style?: ViewStyle;
+  leftIconStyle?: ViewStyle;
   containerStyle?: ViewStyle;
   placeholderStyle?: TextStyle;
-  iconStyle?: ImageStyle;
   innerContainerStyle?: ViewStyle;
   listStyle?: ViewStyle;
   listTextStyle?: TextStyle;
@@ -52,44 +30,40 @@ interface DropDownComponentProps {
   cardStyle?: ViewStyle;
   cardTextStyle?: TextStyle;
   cardIconView?: ViewStyle;
-  cardIconStyle?: ImageStyle;
   isInverted?: boolean;
   isOverLay?: boolean;
   singleSelection?: boolean;
-  selectedItem: any[];
-  setSelectedItem: (items: any[]) => void;
+  selectedItem: string | null;
+  setSelectedItem: (item: string | null) => void;
 }
+const isIOS = Platform.OS === "ios";
 
 const DropDownComponent: React.FC<DropDownComponentProps> = ({
   data,
+  selectedItem,
+  setSelectedItem,
   style,
   containerStyle,
-  iconStyle,
   innerContainerStyle,
   listStyle,
   listTextStyle,
   placeholder,
   placeholderStyle,
-  dropIconUri,
-  dropIconResizeMode,
   dropDownIcon,
+  leftIcon,
+  leftIconStyle,
   cardContainerStyle,
   cardStyle,
   cardTextStyle,
   cardIcon,
-  cardIconUri,
-  cardIconResizeMode,
   cardIconView,
-  cardIconStyle,
   isInverted,
   isOverLay = true,
   singleSelection,
-  selectedItem,
-  setSelectedItem,
 }) => {
-  const [items, setItems] = useState<Item[]>([]);
+  const [items, setItems] = useState<string[]>([]);
   const [showOptions2, setShowOptions2] = useState<boolean>(false);
-  const [rotationAngle, setRotationAngle] = useState(0);
+  const [rotationAngle, setRotationAngle] = useState(90);
   const [showOptions, setShowOptions] = useState<boolean>(false);
 
   const handleToggleOptions = () => {
@@ -97,16 +71,13 @@ const DropDownComponent: React.FC<DropDownComponentProps> = ({
     setShowOptions(!showOptions);
   };
 
-  const handleOptionSelect = (item: Item | any) => {
+  const handleOptionSelect = (item: string) => {
     if (singleSelection) {
-      setItems(item);
+      setItems([item]);
       setSelectedItem(item);
     } else {
       setSelectedItem(item);
-      if (
-        !items.find((existingItem) => existingItem?.name === item?.name) ||
-        !items.find((existingItem) => existingItem?.title === item?.title)
-      ) {
+      if (!items.find((existingItem) => existingItem === item)) {
         setItems([...items, item]);
       }
     }
@@ -134,13 +105,13 @@ const DropDownComponent: React.FC<DropDownComponentProps> = ({
     }
   };
 
-  const renderListFn = (isOverLay?: boolean | undefined) => {
+  const renderListFn = (isOverLays?: boolean) => {
     return (
       <View
         style={[
           styles.innerContainerStyle,
           innerContainerStyle,
-          isOverLay && styles.overlay,
+          isOverLays && styles.overlay,
         ]}
       >
         <FlatList
@@ -151,9 +122,7 @@ const DropDownComponent: React.FC<DropDownComponentProps> = ({
               style={[styles.listStyle, listStyle]}
               key={Math.random() * 2}
             >
-              <Text style={[styles.listTextStyle, listTextStyle]}>
-                {item?.name ? item?.name : item?.title}
-              </Text>
+              <Text style={[styles.listTextStyle, listTextStyle]}>{item}</Text>
             </TouchableOpacity>
           )}
           inverted={isInverted}
@@ -164,67 +133,65 @@ const DropDownComponent: React.FC<DropDownComponentProps> = ({
 
   return (
     <View style={[styles.container, style]} onLayout={onLayout}>
-      {showOptions && showOptions2 && renderListFn((isOverLay = false))}
+      {showOptions && showOptions2 && renderListFn(false)}
       <>
         <Pressable
           onPress={handleToggleOptions}
           style={[styles.containerStyle, containerStyle]}
         >
-          <Text style={[styles.placeholderStyle, placeholderStyle]}>
-            {selectedItem
-              ? selectedItem.name ?? selectedItem.title
-              : placeholder ?? "placeholder text here.."}
-          </Text>
+          {leftIcon ? (
+            <View style={styles.leftIconView}>
+              <View style={[styles.leftIconStyle, leftIconStyle]}>
+                {leftIcon}
+              </View>
+              <Text
+                style={[
+                  styles.placeholderStyle,
+                  placeholderStyle,
+                  { marginLeft: 8 },
+                ]}
+              >
+                {selectedItem
+                  ? selectedItem
+                  : placeholder ?? "placeholder text here.."}
+              </Text>
+            </View>
+          ) : (
+            <Text style={[styles.placeholderStyle, placeholderStyle]}>
+              {selectedItem
+                ? selectedItem
+                : placeholder ?? "placeholder text here.."}
+            </Text>
+          )}
 
           {dropDownIcon ?? (
-            <Image
-              source={
-                dropIconUri
-                  ? { uri: dropIconUri }
-                  : require("./assets/images/icon-down.png")
-              }
-              resizeMode={dropIconResizeMode ?? "contain"}
+            <Text
               style={[
-                styles.iconStyle,
-                iconStyle,
                 { transform: [{ rotate: `${rotationAngle}deg` }] },
+                styles.dropIconStyle,
               ]}
-            />
+            >
+              {"❯"}
+            </Text>
           )}
         </Pressable>
       </>
 
       {showOptions && !showOptions2 && renderListFn(isOverLay)}
 
-      {singleSelection ? (
-        <></>
-      ) : (
+      {!singleSelection && (
         <View style={[styles.cardContainerStyle, cardContainerStyle]}>
-          {items?.map((item, index) => {
-            return (
-              <View key={index} style={[styles.cardStyle, cardStyle]}>
-                <Text style={[styles.cardTextStyle, cardTextStyle]}>
-                  {item?.name ? item?.name : item?.title}
-                </Text>
-                <TouchableOpacity
-                  onPress={() => handleRemoveItem(index)}
-                  style={[styles.cardIconView, cardIconView]}
-                >
-                  {cardIcon ?? (
-                    <Image
-                      source={
-                        cardIconUri
-                          ? { uri: cardIconUri }
-                          : require("./assets/images/icon-cross.png")
-                      }
-                      resizeMode={cardIconResizeMode ?? "contain"}
-                      style={[styles.cardIconStyle, cardIconStyle]}
-                    />
-                  )}
-                </TouchableOpacity>
-              </View>
-            );
-          })}
+          {items?.map((item, index) => (
+            <View key={index} style={[styles.cardStyle, cardStyle]}>
+              <Text style={[styles.cardTextStyle, cardTextStyle]}>{item}</Text>
+              <TouchableOpacity
+                onPress={() => handleRemoveItem(index)}
+                style={[styles.cardIconView, cardIconView]}
+              >
+                {cardIcon ?? <Text style={styles.crossIconStyle}>{"✕"}</Text>}
+              </TouchableOpacity>
+            </View>
+          ))}
         </View>
       )}
     </View>
@@ -247,6 +214,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderColor: "grey",
     paddingHorizontal: 10,
+    backgroundColor: "#f5f0f0",
   },
   innerContainerStyle: {
     borderWidth: 0.5,
@@ -280,11 +248,24 @@ const styles = StyleSheet.create({
   },
   cardContainerStyle: { flexDirection: "row", flexWrap: "wrap", paddingTop: 2 },
   cardIconView: { marginLeft: 5 },
-  iconStyle: { height: 12, width: 12 },
+  crossIconStyle: { fontSize: 8, fontWeight: "bold" },
+  dropIconStyle: { fontSize: 13, color: "grey" },
   cardIconStyle: { height: 12, width: 12 },
-  cardTextStyle: { color: "#000", fontFamily: "Courier New" },
-  listTextStyle: { fontFamily: "Courier New" },
-  placeholderStyle: { color: "grey" },
+  cardTextStyle: {
+    color: "#000",
+    fontFamily: isIOS ? "Courier New" : "monospace",
+    textTransform: "capitalize",
+  },
+  listTextStyle: {
+    fontFamily: isIOS ? "Courier New" : "monospace",
+    textTransform: "capitalize",
+  },
+  leftIconView: {
+    justifyContent: "space-around",
+    flexDirection: "row",
+  },
+  leftIconStyle: { justifyContent: "center" },
+  placeholderStyle: { color: "grey", textTransform: "capitalize" },
 });
 
 export default DropDownComponent;
