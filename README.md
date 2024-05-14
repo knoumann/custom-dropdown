@@ -2,9 +2,13 @@
 
 React Native Dropown Widget is a library which have the capability to provides a variety of options to customize the dropdown to match the design and functionality of your application.
 
-[<img src="https://github.com/knoumann/custom-dropdown/blob/main/assets/images/sample-1.jpg">]
+![App gif](https://github.com/knoumann/custom-dropdown/blob/main/assets/gif/sample-3.gif)
 
-[<img src="https://github.com/knoumann/custom-dropdown/blob/main/assets/images/sample-2.jpg">]
+## Screenshots
+
+<img src="https://github.com/knoumann/custom-dropdown/blob/main/assets/images/sample-1.jpg">
+
+<img src="https://github.com/knoumann/custom-dropdown/blob/main/assets/images/sample-2.jpg">
 
 ## Badges
 
